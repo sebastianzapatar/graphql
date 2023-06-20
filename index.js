@@ -1,25 +1,9 @@
 'use strict'
-const {ApolloServer, gql}=require('apollo-server');
-const cursos=[
-    {titulo:'El profesor se embalo',
-    tecnologia:'En teoria apollo'},
-    {titulo:'Buen diplomado',
-    tecnologia:'node'},
-]
-const typeDefs=gql`
-    type Curso{
-        titulo:String
-        tecnologia:String
-    }
-    type Query{
-        getCursos: [Curso]
-    }
-`
-const resolvers={
-    Query:{
-        getCursos:()=>cursos
-    }
-}
+const {ApolloServer}=require('apollo-server');
+const typeDefs=require('./db/schemas');
+const resolvers=require('./db/resolvers');
+
+
 //servidor
 const server=new ApolloServer({
     typeDefs,
