@@ -2,8 +2,9 @@
 const {ApolloServer}=require('apollo-server');
 const typeDefs=require('./db/schemas');
 const resolvers=require('./db/resolvers');
+const conectardb=require('./config/db')
 
-
+conectardb();
 //servidor
 const server=new ApolloServer({
     typeDefs,
