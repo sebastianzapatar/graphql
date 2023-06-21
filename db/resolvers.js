@@ -1,6 +1,7 @@
 const bcrypt=require('bcryptjs');
 const Usuario=require('../models/Usuario.schema');
-const jwt=require('jsonwebtoken')
+const Producto=require('../models/Producto.schema');
+const jwt=require('jsonwebtoken');
 
 const crearToken=(usuario,secreta,expiracion)=>{
     const {id,email,nombre,apellido}=usuario;
@@ -28,6 +29,15 @@ const resolvers={
                 curso=>curso.titulo===input
             );
             return resultado;
+        },
+        getProductos:async()=>{
+            const productos=await Producto.find({});
+            return productos;
+        },
+        getProducto:async(_,{id})=>{
+            const producto=await Producto.findOne({_id:id});
+            console.log(id);
+            return producto;
         }
     },
     Mutation:{
@@ -67,7 +77,32 @@ const resolvers={
             return{
                 token:crearToken(existeUsuario,process.env.JWT_TOKEN,'24h')
             }
+        },
+        crearProducto:async(_,{input})=>{
+            try{
+                const producto=new Producto(input);
+                const resultado=await producto.save();
+                return resultado;
+            }
+            catch(e){
+                console.log(e);
+            }
+        },
+        borrarProducto:async(_,{id})=>{
+            try{
+                const producto=await Producto.findOne({_id:id});
+                if(!producto){
+                    throw new Error('Producto no existe');
+                }
+                await Producto.findOneAndDelete({_id:id});
+                return "Producto eliminado";
+            }
+            catch(e){
+                console.log(e);
+            }
         }
+        
+        
     }
 }
 module.exports=resolvers;

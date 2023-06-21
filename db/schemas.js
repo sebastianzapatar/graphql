@@ -14,8 +14,18 @@ const typeDefs=gql`
     type Token{
         token:String
     }
-
-
+    type Producto{
+        id:ID
+        nombre:String
+        existencia:Int
+        precio:Float
+        creado:String
+    }
+    input ProductoInput{
+        nombre:String!
+        existencia:Int!
+        precio:Float!
+    }
     input UsuarioInput{
         nombre:String!
         apellido:String!
@@ -31,11 +41,17 @@ const typeDefs=gql`
         getCursosT(input:String):[Curso]
         getCursosTitu(input:String):Curso
 
-        #Usuarios
+        #Productos
+        getProductos:[Producto]
+        getProducto(id:ID):Producto
     }
     type Mutation{
         nuevoUsuario(input:UsuarioInput):Usuario
         autenticarUsuario(input:AutenticarInput):Token
+
+        #Producto
+        crearProducto(input:ProductoInput):Producto
+        borrarProducto(id:ID):String
     }
 `
 module.exports=typeDefs;
