@@ -21,10 +21,26 @@ const typeDefs=gql`
         precio:Float
         creado:String
     }
+    type Cliente{
+        id:ID
+        nombre:String
+        apellido:String
+        empresa:String
+        email:String
+        telefono:String
+        vendedor:ID
+    }
+    input ClienteInput{
+        nombre:String!
+        apellido:String!
+        empresa:String!
+        telefono:String!
+        email:String!
+    }
     input ProductoInput{
         nombre:String!
         existencia:Int!
-        precio:Float!
+        precio:Float
     }
     input UsuarioInput{
         nombre:String!
@@ -44,6 +60,9 @@ const typeDefs=gql`
         #Productos
         getProductos:[Producto]
         getProducto(id:ID):Producto
+
+        #Clientes
+        getClientesVendedor:[Cliente]
     }
     type Mutation{
         nuevoUsuario(input:UsuarioInput):Usuario
@@ -52,6 +71,12 @@ const typeDefs=gql`
         #Producto
         crearProducto(input:ProductoInput):Producto
         borrarProducto(id:ID):String
+        actualizarProducto(id:ID, input:ProductoInput):Producto
+
+
+        #Cliente
+        crearCliente(input:ClienteInput):Cliente
+        
     }
 `
 module.exports=typeDefs;

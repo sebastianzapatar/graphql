@@ -1,6 +1,7 @@
 const bcrypt=require('bcryptjs');
 const Usuario=require('../models/Usuario.schema');
 const Producto=require('../models/Producto.schema');
+const Cliente=require('../models/Cliente.schema');
 const jwt=require('jsonwebtoken');
 
 const crearToken=(usuario,secreta,expiracion)=>{
@@ -38,6 +39,16 @@ const resolvers={
             const producto=await Producto.findOne({_id:id});
             console.log(id);
             return producto;
+        },
+        getClientesVendedor:async(_,{},ctx)=>{
+            try{
+                const id=ctx.usuario.id;
+                const clientes=await Cliente.find({vendedor:id});
+                return clientes
+            }
+            catch(e){
+                console.log(e);
+            }
         }
     },
     Mutation:{
@@ -100,8 +111,30 @@ const resolvers={
             catch(e){
                 console.log(e);
             }
+        },
+        actualizarProducto:async(_,{id,input})=>{
+            let producto=await Producto.findOne({_id:id});
+            if (!producto) {
+                throw new Error("No se encontro el producto");
+            }
+            producto=await Producto.findOneAndUpdate({_id:id},
+                input,{new:true});
+            return producto;
+        },
+        crearCliente:async(_,{input},ctx)=>{
+            //Verificar si el cliente existe
+            const {email}=input;
+            const cliente=await Cliente.findOne({email:email});
+            if(cliente){
+                throw new Error('Ya existe el cliente');
+            }
+            //Asignar un vendedor
+            const nuevoCliente=new Cliente(input);
+            nuevoCliente.vendedor=ctx.usuario.id;
+            //Guardar
+            const resultado=await nuevoCliente.save();
+            return resultado;
         }
-        
         
     }
 }

@@ -1,14 +1,28 @@
 'use strict'
 const {ApolloServer}=require('apollo-server');
 const typeDefs=require('./db/schemas');
+const jwt=require('jsonwebtoken');
 const resolvers=require('./db/resolvers');
-const conectardb=require('./config/db')
+require('dotenv').config({path:'env'});
+const conectardb=require('./config/db');
 
 conectardb();
 //servidor
 const server=new ApolloServer({
     typeDefs,
-    resolvers
+    resolvers,
+    context:({req})=>{
+        const token=req.headers['authorization']||'';
+        try{
+            const usuario=jwt.verify(token,process.env.JWT_TOKEN);
+            return {
+                usuario
+            };
+        }
+        catch(e){
+            console.log(e);
+        }
+    }
 });
 
 //Arrancar servidor
