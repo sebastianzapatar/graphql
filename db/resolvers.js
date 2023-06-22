@@ -134,6 +134,24 @@ const resolvers={
             //Guardar
             const resultado=await nuevoCliente.save();
             return resultado;
+        },
+        eliminarCliente:async(_,{id},ctx)=>{
+            const cliente=await Cliente.findOne({_id:id});
+            console.log(id);
+            if(!cliente){
+                throw new Error(e);
+            }
+            const idcontex=ctx.usuario.id;
+            if(cliente.vendedor.toString()!==idcontex){
+                throw new Error("No tiene permiso para realizar esta accion");
+            }
+            try{
+                await Cliente.findOneAndDelete({_id:id});
+                return "Cliente eliminado"
+            }
+            catch(e){   
+                console.log(e);
+            }
         }
         
     }
