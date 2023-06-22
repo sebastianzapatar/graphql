@@ -77,6 +77,7 @@ const typeDefs=gql`
         #Cliente
         crearCliente(input:ClienteInput):Cliente
         eliminarCliente(id:ID):String
+        actualizarCliente(id:ID,input:ClienteInput):Cliente
         
     }
 `

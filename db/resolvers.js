@@ -152,6 +152,23 @@ const resolvers={
             catch(e){   
                 console.log(e);
             }
+        },
+        actualizarCliente:async(_,{id,input},ctx)=>{
+            let cliente=await Cliente.findById(id);
+            if(!cliente){
+                throw new Error("No existe el cliente");
+            }
+            const idu=ctx.usuario.id;
+            if(cliente.vendedor.toString()!==idu){
+                throw new Error("No tiene permiso para realizar esta accion");
+            }
+            try{
+                cliente=await Cliente.findOneAndUpdate({_id:id},input,{new:true});
+                return cliente;
+            }   
+            catch(e){
+                console.log(e);
+            }
         }
         
     }
