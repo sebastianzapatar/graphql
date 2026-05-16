@@ -1,0 +1,61 @@
+# ============================================================
+# Compose: MongoDB + Backend Java + Frontend React
+# Levanta toda la infraestructura con un solo comando:
+#   docker compose up -d
+# ============================================================
+
+services:
+
+  # ---- Base de datos MongoDB ----
+  mongodb:
+    image: mongo:7.0                     # Imagen oficial MongoDB 7.0
+    container_name: mongo-graphql
+    ports:
+      - "27017:27017"                    # Acceso local para desarrollo
+    volumes:
+      - mongo-data:/data/db              # Persistir datos entre reinicios
+    environment:
+      MONGO_INITDB_DATABASE: graphql_eia # Base de datos inicial
+    # Healthcheck para que el backend espere a que Mongo este listo
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- Backend: Java 21 + Spring Boot + GraphQL ----
+  backend:
+    build:
+      context: .                         # Construir desde la raiz del proyecto Java
+      dockerfile: Dockerfile             # Usar el Dockerfile del backend
+    container_name: graphql-backend
+    ports:
+      - "8080:8080"                      # API GraphQL + GraphiQL
+    environment:
+      # Apuntar a MongoDB usando el hostname del servicio Docker
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/graphql_eia
+    depends_on:
+      mongodb:
+        condition: service_healthy       # Esperar a que MongoDB este sano
+    restart: unless-stopped
+
+  # ---- Frontend: React + Vite + Apollo Client ----
+  frontend:
+    build:
+      context: ./frontend                # Construir desde la carpeta frontend
+      dockerfile: Dockerfile
+      args:
+        # URL del backend GraphQL accesible desde el navegador del usuario
+        # En Docker local, el navegador accede a localhost:8080 (no al hostname)
+        VITE_GRAPHQL_URL: http://localhost:8080/graphql
+    container_name: graphql-frontend
+    ports:
+      - "3000:80"                        # Frontend en puerto 3000
+    depends_on:
+      - backend                          # Esperar a que el backend inicie
+    restart: unless-stopped
+
+# Volumen persistente para MongoDB
+volumes:
+  mongo-data:
+    driver: local

@@ -1,0 +1,213 @@
+/* ============================================================
+   Estilos globales del frontend React - GraphQL Productos
+   Paleta: blanco con azul (consistente con la presentacion)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --blue: #1a56db;
+  --blue-light: #3b82f6;
+  --blue-soft: #dbeafe;
+  --blue-dark: #1e3a5f;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --success: #16a34a;
+  --radius: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* === HEADER === */
+.app-header {
+  background: linear-gradient(135deg, #1a56db, #3b82f6);
+  color: white;
+  padding: 32px;
+  text-align: center;
+}
+.app-header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
+.header-subtitle { font-size: 0.9rem; opacity: 0.85; font-weight: 300; }
+
+/* === MAIN === */
+.app-main { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+/* === FORM === */
+.producto-form {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 32px;
+}
+.producto-form h3 {
+  color: var(--blue-dark);
+  font-size: 1.1rem;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--blue-soft);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.form-group input {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.form-group input:focus {
+  border-color: var(--blue-light);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* === BUTTONS === */
+.btn-primary {
+  background: var(--blue);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-primary:hover { background: var(--blue-light); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger-soft);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-danger:hover {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+/* === PRODUCT LIST === */
+.section-list h3 {
+  color: var(--blue-dark);
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.producto-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.producto-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.producto-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+.producto-card h4 {
+  font-size: 1rem;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.card-badge {
+  display: inline-block;
+  background: var(--blue-soft);
+  color: var(--blue);
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.card-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.card-price { font-size: 1.1rem; font-weight: 700; color: var(--blue); }
+.card-stock { font-size: 0.8rem; color: var(--text-secondary); }
+.card-actions { text-align: right; }
+
+/* === STATES === */
+.loading-state, .error-state, .empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-secondary);
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-state { color: var(--danger); }
+.error-detail { font-size: 0.8rem; margin-top: 6px; color: var(--text-secondary); }
+.error-msg { color: var(--danger); font-size: 0.85rem; margin-bottom: 12px; }
+
+/* === FOOTER === */
+.app-footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+  margin-top: 48px;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .producto-grid { grid-template-columns: 1fr; }
+}

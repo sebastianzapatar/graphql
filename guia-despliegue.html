@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Guia de Despliegue: Render + Netlify</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;color:#1e293b;max-width:820px;margin:0 auto;padding:40px 32px;line-height:1.6}
+    @media print{body{padding:20px;font-size:11pt}}
+    h1{font-size:1.8rem;font-weight:700;color:#1a56db;margin-bottom:8px;border-bottom:3px solid #1a56db;padding-bottom:8px}
+    h2{font-size:1.35rem;font-weight:700;color:#1e3a5f;margin:32px 0 12px;padding-left:12px;border-left:4px solid #3b82f6}
+    h3{font-size:1.05rem;font-weight:600;color:#1a56db;margin:18px 0 8px}
+    p{margin-bottom:12px;color:#475569;font-size:.92rem}
+    .subtitle{color:#64748b;font-size:.95rem;margin-bottom:28px}
+    code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:#1a56db}
+    pre{background:#0f172a;color:#e2e8f0;padding:16px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.7;overflow-x:auto;margin:10px 0 18px}
+    .step{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px;margin:14px 0}
+    .step-num{display:inline-block;background:#1a56db;color:#fff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-weight:700;font-size:.85rem;margin-right:8px}
+    .tip{background:#dbeafe;border-left:4px solid #3b82f6;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:.85rem}
+    .warn{background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:.85rem}
+    ul,ol{padding-left:20px;margin:8px 0 14px}
+    li{margin:4px 0;font-size:.9rem;color:#475569}
+    .logo{text-align:center;margin-bottom:20px}
+    .logo img{width:140px}
+    .badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.75rem;font-weight:600}
+    .badge-render{background:#e0e7ff;color:#4338ca}
+    .badge-netlify{background:#d1fae5;color:#065f46}
+    .badge-mongo{background:#dcfce7;color:#166534}
+    .footer{text-align:center;margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:.78rem;color:#94a3b8}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+    @media(max-width:600px){.two-col{grid-template-columns:1fr}}
+    @page{margin:1.5cm}
+  </style>
+</head>
+<body>
+
+<div class="logo">
+  <img src="https://www.eia.edu.co/wp-content/uploads/2023/07/Logo-principal-scaled.webp" alt="EIA">
+</div>
+
+<h1>Guia de Despliegue: Render + Netlify</h1>
+<p class="subtitle">Backend en <span class="badge badge-render">Render</span> &bull; Frontend en <span class="badge badge-netlify">Netlify</span> &bull; Base de datos en <span class="badge badge-mongo">MongoDB Atlas</span></p>
+
+<!-- ============================================================ -->
+<h2>Arquitectura de Despliegue</h2>
+<p>En produccion separamos los servicios:</p>
+<div class="two-col">
+  <div class="step">
+    <strong>Backend (Render)</strong>
+    <p>Spring Boot + GraphQL desplegado como Web Service en Render. Se conecta a MongoDB Atlas.</p>
+  </div>
+  <div class="step">
+    <strong>Frontend (Netlify)</strong>
+    <p>React + Vite desplegado como sitio estatico en Netlify. Se conecta al backend en Render.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Paso 1: Configurar MongoDB Atlas (Base de Datos)</h2>
+<p>Necesitamos una base de datos MongoDB en la nube (gratis).</p>
+
+<div class="step">
+  <p><span class="step-num">1</span>Ir a <a href="https://www.mongodb.com/cloud/atlas" target="_blank">MongoDB Atlas</a> y crear una cuenta gratuita.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">2</span>Crear un <strong>Cluster gratuito</strong> (M0 Free Tier).</p>
+</div>
+<div class="step">
+  <p><span class="step-num">3</span>En <strong>Database Access</strong>, crear un usuario con password.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">4</span>En <strong>Network Access</strong>, agregar <code>0.0.0.0/0</code> para permitir acceso desde cualquier IP (necesario para Render).</p>
+</div>
+<div class="step">
+  <p><span class="step-num">5</span>Ir a <strong>Connect → Drivers</strong> y copiar la URI de conexion:</p>
+  <pre>mongodb+srv://USUARIO:PASSWORD@cluster0.xxxxx.mongodb.net/graphql_eia?retryWrites=true&w=majority</pre>
+</div>
+
+<div class="warn"><strong>Importante:</strong> Reemplaza USUARIO y PASSWORD con tus credenciales reales. Guarda esta URI, la necesitaras en Render.</div>
+
+<!-- ============================================================ -->
+<h2>Paso 2: Desplegar Backend en Render</h2>
+
+<div class="step">
+  <p><span class="step-num">1</span>Ir a <a href="https://render.com" target="_blank">render.com</a> y crear una cuenta (puedes usar GitHub).</p>
+</div>
+<div class="step">
+  <p><span class="step-num">2</span>Click en <strong>"New" → "Web Service"</strong>.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">3</span>Conectar tu <strong>repositorio de GitHub</strong> donde esta el proyecto.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">4</span>Configurar el servicio:</p>
+  <pre>Name:           graphql-backend
+Root Directory: ejemplo-graphql
+Runtime:        Docker
+Branch:         main</pre>
+</div>
+<div class="step">
+  <p><span class="step-num">5</span>En <strong>"Environment Variables"</strong>, agregar:</p>
+  <pre>SPRING_DATA_MONGODB_URI = mongodb+srv://USUARIO:PASSWORD@cluster0.xxxxx.mongodb.net/graphql_eia</pre>
+</div>
+<div class="step">
+  <p><span class="step-num">6</span>Click en <strong>"Create Web Service"</strong>. Render construira la imagen Docker automaticamente.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">7</span>Esperar el deploy (~3-5 min). Render asignara una URL:</p>
+  <pre>https://graphql-backend-xxxx.onrender.com</pre>
+</div>
+
+<div class="tip"><strong>Verificar:</strong> Abrir <code>https://TU-URL.onrender.com/graphiql</code> para confirmar que GraphiQL funciona.</div>
+
+<!-- ============================================================ -->
+<h2>Paso 3: Desplegar Frontend en Netlify</h2>
+
+<div class="step">
+  <p><span class="step-num">1</span>Ir a <a href="https://netlify.com" target="_blank">netlify.com</a> y crear una cuenta.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">2</span>Click en <strong>"Add new site" → "Import an existing project"</strong>.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">3</span>Conectar el repositorio de GitHub.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">4</span>Configurar el build:</p>
+  <pre>Base directory:    ejemplo-graphql/frontend
+Build command:     npm run build
+Publish directory: ejemplo-graphql/frontend/dist</pre>
+</div>
+<div class="step">
+  <p><span class="step-num">5</span>En <strong>"Environment variables"</strong>, agregar:</p>
+  <pre>VITE_GRAPHQL_URL = https://graphql-backend-xxxx.onrender.com/graphql</pre>
+  <p style="font-size:.8rem;color:#64748b">Reemplaza con la URL real de tu backend en Render.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">6</span>Click en <strong>"Deploy site"</strong>. Netlify construira y desplegara automaticamente.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">7</span>Netlify asignara una URL:</p>
+  <pre>https://graphql-productos-xxx.netlify.app</pre>
+</div>
+
+<div class="tip"><strong>Redirecciones SPA:</strong> Crear un archivo <code>public/_redirects</code> en el frontend con:<br><br><code>/*    /index.html   200</code><br><br>Esto permite que React Router funcione correctamente en Netlify.</div>
+
+<!-- ============================================================ -->
+<h2>Paso 4: Verificar el Despliegue</h2>
+
+<div class="step">
+  <p><span class="step-num">1</span>Abrir el frontend en Netlify y verificar que carga correctamente.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">2</span>Crear un producto usando el formulario.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">3</span>Verificar que aparece en la lista de productos.</p>
+</div>
+<div class="step">
+  <p><span class="step-num">4</span>Abrir GraphiQL en Render y ejecutar una query para confirmar que los datos estan en MongoDB Atlas.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>Resumen de URLs</h2>
+
+<table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin:12px 0">
+  <thead>
+    <tr style="background:#1a56db;color:white">
+      <th style="padding:12px;text-align:left;font-size:.85rem">Servicio</th>
+      <th style="padding:12px;text-align:left;font-size:.85rem">URL</th>
+      <th style="padding:12px;text-align:left;font-size:.85rem">Plataforma</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td style="padding:10px;border-bottom:1px solid #e2e8f0;font-size:.85rem">Frontend</td><td style="padding:10px;border-bottom:1px solid #e2e8f0;font-size:.85rem">https://xxx.netlify.app</td><td style="padding:10px;border-bottom:1px solid #e2e8f0"><span class="badge badge-netlify">Netlify</span></td></tr>
+    <tr><td style="padding:10px;border-bottom:1px solid #e2e8f0;font-size:.85rem">Backend API</td><td style="padding:10px;border-bottom:1px solid #e2e8f0;font-size:.85rem">https://xxx.onrender.com/graphql</td><td style="padding:10px;border-bottom:1px solid #e2e8f0"><span class="badge badge-render">Render</span></td></tr>
+    <tr><td style="padding:10px;border-bottom:1px solid #e2e8f0;font-size:.85rem">GraphiQL</td><td style="padding:10px;border-bottom:1px solid #e2e8f0;font-size:.85rem">https://xxx.onrender.com/graphiql</td><td style="padding:10px;border-bottom:1px solid #e2e8f0"><span class="badge badge-render">Render</span></td></tr>
+    <tr><td style="padding:10px;font-size:.85rem">MongoDB</td><td style="padding:10px;font-size:.85rem">mongodb+srv://...mongodb.net</td><td style="padding:10px"><span class="badge badge-mongo">Atlas</span></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>Troubleshooting</h2>
+
+<h3>El frontend no conecta con el backend</h3>
+<ul>
+  <li>Verificar que <code>VITE_GRAPHQL_URL</code> apunta a la URL correcta de Render.</li>
+  <li>Verificar que CORS esta habilitado en el backend (ya esta en <code>application.yml</code>).</li>
+  <li>Redesplegar el frontend despues de cambiar variables de entorno.</li>
+</ul>
+
+<h3>El backend no conecta con MongoDB Atlas</h3>
+<ul>
+  <li>Verificar la URI en <code>SPRING_DATA_MONGODB_URI</code> (usuario, password, nombre del cluster).</li>
+  <li>Verificar que <code>0.0.0.0/0</code> esta en Network Access de Atlas.</li>
+  <li>Verificar los logs en Render (Dashboard → Logs).</li>
+</ul>
+
+<h3>Render tarda mucho o no responde</h3>
+<ul>
+  <li>El tier gratuito de Render tiene <strong>cold starts</strong> (~30s si el servicio estuvo inactivo).</li>
+  <li>Considerar un tier pago si necesitas respuestas rapidas.</li>
+</ul>
+
+<div class="footer">
+  Universidad EIA &bull; Ingenieria de Sistemas y Computacion &bull; 2026<br>
+  Proyecto: GraphQL vs REST API con Java 21, MongoDB, React y TypeScript
+</div>
+
+</body>
+</html>

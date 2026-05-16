@@ -1,0 +1,35 @@
+# ============================================================
+# Configuracion de la aplicacion GraphQL + MongoDB
+# ============================================================
+
+spring:
+  application:
+    # Nombre de la aplicacion
+    name: graphql-ejemplo
+
+  # ---- Configuracion de MongoDB ----
+  # En Docker usa el hostname "mongodb", en local usa localhost
+  # La variable de entorno SPRING_DATA_MONGODB_URI sobreescribe este valor
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/graphql_eia}
+      database: graphql_eia
+
+  # ---- Configuracion de GraphQL ----
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+    path: /graphql
+    schema:
+      printer:
+        enabled: true
+    # Habilitar CORS para que el frontend React pueda conectarse
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"
+
+# Puerto del servidor
+server:
+  port: 8080

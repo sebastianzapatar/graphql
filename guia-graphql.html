@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Guia: Como Probar GraphQL - Universidad EIA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;color:#1e293b;max-width:800px;margin:0 auto;padding:40px 32px;line-height:1.6}
+    @media print{body{padding:20px;font-size:11pt}}
+    h1{font-size:1.8rem;font-weight:700;color:#1a56db;margin-bottom:8px;border-bottom:3px solid #1a56db;padding-bottom:8px}
+    h2{font-size:1.3rem;font-weight:700;color:#1e3a5f;margin:28px 0 12px;padding-left:12px;border-left:4px solid #3b82f6}
+    h3{font-size:1.05rem;font-weight:600;color:#1a56db;margin:16px 0 8px}
+    p{margin-bottom:12px;color:#475569;font-size:.92rem}
+    .subtitle{color:#64748b;font-size:.95rem;margin-bottom:24px}
+    code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:#1a56db}
+    pre{background:#0f172a;color:#e2e8f0;padding:16px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.7;overflow-x:auto;margin:10px 0 18px}
+    .step{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px;margin:14px 0}
+    .step-num{display:inline-block;background:#1a56db;color:#fff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-weight:700;font-size:.85rem;margin-right:8px}
+    .tip{background:#dbeafe;border-left:4px solid #3b82f6;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:.85rem}
+    .warn{background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:.85rem}
+    ul{padding-left:20px;margin:8px 0 14px}
+    li{margin:4px 0;font-size:.9rem;color:#475569}
+    .logo{text-align:center;margin-bottom:20px}
+    .logo img{width:140px}
+    .footer{text-align:center;margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:.78rem;color:#94a3b8}
+    @page{margin:1.5cm}
+  </style>
+</head>
+<body>
+
+<div class="logo">
+  <img src="https://www.eia.edu.co/wp-content/uploads/2023/07/Logo-principal-scaled.webp" alt="EIA">
+</div>
+
+<h1>Guia: Como Probar GraphQL</h1>
+<p class="subtitle">Universidad EIA &bull; Ingenieria de Sistemas &bull; Proyecto GraphQL + MongoDB + Java 21</p>
+
+<h2>1. Requisitos Previos</h2>
+<div class="step">
+  <p><span class="step-num">1</span><strong>Java 21</strong> instalado. Verificar con:</p>
+  <pre>java --version
+# Debe mostrar: openjdk 21.x.x o superior</pre>
+</div>
+<div class="step">
+  <p><span class="step-num">2</span><strong>Docker</strong> instalado y corriendo. Verificar con:</p>
+  <pre>docker --version
+docker compose version</pre>
+</div>
+<div class="step">
+  <p><span class="step-num">3</span><strong>Maven</strong> instalado o usar el wrapper del proyecto.</p>
+</div>
+
+<h2>2. Levantar MongoDB con Docker</h2>
+<p>Desde la carpeta <code>ejemplo-graphql/</code>:</p>
+<pre>cd ejemplo-graphql
+docker compose up -d</pre>
+<p>Verificar que el contenedor esta corriendo:</p>
+<pre>docker ps
+# Debe mostrar: mongo-graphql corriendo en puerto 27017</pre>
+
+<div class="tip"><strong>Tip:</strong> Si ya tienes MongoDB corriendo en Docker, asegurate de que el puerto 27017 no este ocupado.</div>
+
+<h2>3. Ejecutar la Aplicacion</h2>
+<pre>mvn spring-boot:run</pre>
+<p>Esperar hasta ver en consola:</p>
+<pre>Started GraphqlApplication in X.XXX seconds</pre>
+
+<h2>4. Abrir GraphiQL</h2>
+<p>Abrir en el navegador:</p>
+<pre>http://localhost:8080/graphiql</pre>
+<p>GraphiQL es una interfaz visual para escribir y ejecutar consultas GraphQL. Tiene autocompletado y documentacion integrada.</p>
+
+<h2>5. Operaciones: Queries (Lectura)</h2>
+
+<h3>5.1 Obtener todos los productos</h3>
+<pre>query {
+  productos {
+    id
+    nombre
+    descripcion
+    precio
+    stock
+    categoria
+  }
+}</pre>
+
+<h3>5.2 Buscar producto por ID</h3>
+<pre>query {
+  productoPorId(id: "PEGAR_ID_AQUI") {
+    nombre
+    precio
+    stock
+  }
+}</pre>
+
+<h3>5.3 Buscar por categoria</h3>
+<pre>query {
+  productosPorCategoria(categoria: "Electronica") {
+    nombre
+    precio
+  }
+}</pre>
+
+<h3>5.4 Buscar por rango de precio</h3>
+<pre>query {
+  productosPorPrecio(min: 10000, max: 5000000) {
+    nombre
+    precio
+    categoria
+  }
+}</pre>
+
+<div class="tip"><strong>Tip:</strong> Puedes pedir SOLO los campos que necesites. No estas obligado a pedir todos.</div>
+
+<h2>6. Operaciones: Mutations (Escritura)</h2>
+
+<h3>6.1 Crear un producto</h3>
+<pre>mutation {
+  crearProducto(
+    nombre: "Laptop HP Pavilion"
+    descripcion: "16GB RAM, 512GB SSD, Intel i7"
+    precio: 3500000
+    stock: 15
+    categoria: "Electronica"
+  ) {
+    id
+    nombre
+    precio
+  }
+}</pre>
+<div class="warn"><strong>Importante:</strong> Copia el <code>id</code> que retorna para usarlo en las siguientes operaciones.</div>
+
+<h3>6.2 Actualizar un producto</h3>
+<pre>mutation {
+  actualizarProducto(
+    id: "PEGAR_ID_AQUI"
+    precio: 2999000
+    stock: 8
+  ) {
+    id
+    nombre
+    precio
+    stock
+  }
+}</pre>
+
+<h3>6.3 Eliminar un producto</h3>
+<pre>mutation {
+  eliminarProducto(id: "PEGAR_ID_AQUI")
+}</pre>
+<p>Retorna <code>true</code> si fue eliminado, <code>false</code> si no existia.</p>
+
+<h2>7. Usando Variables (Avanzado)</h2>
+<p>En la seccion "Variables" de GraphiQL (panel inferior):</p>
+<p><strong>Query:</strong></p>
+<pre>query BuscarPorPrecio($min: Float!, $max: Float!) {
+  productosPorPrecio(min: $min, max: $max) {
+    nombre
+    precio
+    categoria
+  }
+}</pre>
+<p><strong>Variables (JSON):</strong></p>
+<pre>{
+  "min": 50000,
+  "max": 2000000
+}</pre>
+
+<h2>8. Probar con cURL (Terminal)</h2>
+<pre># Obtener todos los productos
+curl -X POST http://localhost:8080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ productos { id nombre precio } }"}'
+
+# Crear un producto
+curl -X POST http://localhost:8080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "mutation { crearProducto(nombre: \"Teclado\", precio: 120000, stock: 50, categoria: \"Perifericos\") { id nombre } }"}'</pre>
+
+<h2>9. Explorar el Schema</h2>
+<p>En GraphiQL, haz clic en el icono de <strong>"Docs"</strong> (esquina superior derecha) para ver:</p>
+<ul>
+  <li>Todos los tipos definidos (Producto)</li>
+  <li>Todas las queries disponibles</li>
+  <li>Todas las mutations disponibles</li>
+  <li>Tipos de cada campo (String!, Float!, Int!, etc.)</li>
+</ul>
+
+<div class="tip"><strong>Tip:</strong> GraphQL es auto-documentado. El schema ES la documentacion. No necesitas Swagger.</div>
+
+<h2>10. Detener los Servicios</h2>
+<pre># Detener Spring Boot: Ctrl+C en la terminal
+
+# Detener MongoDB
+docker compose down
+
+# Detener y borrar datos
+docker compose down -v</pre>
+
+<div class="footer">
+  Universidad EIA &bull; Ingenieria de Sistemas y Computacion &bull; 2026<br>
+  Proyecto: GraphQL vs REST API con Java 21, MongoDB y Lombok
+</div>
+
+</body>
+</html>

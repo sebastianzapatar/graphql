@@ -1,0 +1,54 @@
+# ============================================================
+# Schema de GraphQL para la API de Productos
+# Define los tipos, queries y mutations disponibles
+# ============================================================
+
+# Tipo Producto: representa un producto en la tienda
+type Producto {
+    id: ID!                  # Identificador unico (generado por MongoDB)
+    nombre: String!          # Nombre del producto (obligatorio)
+    descripcion: String      # Descripcion detallada (opcional)
+    precio: Float!           # Precio del producto (obligatorio)
+    stock: Int!              # Cantidad en inventario (obligatorio)
+    categoria: String        # Categoria del producto (opcional)
+}
+
+# Queries: operaciones de lectura (equivalente a GET en REST)
+type Query {
+    # Obtener todos los productos
+    productos: [Producto!]!
+
+    # Obtener un producto por su ID
+    productoPorId(id: ID!): Producto
+
+    # Buscar productos por categoria
+    productosPorCategoria(categoria: String!): [Producto!]!
+
+    # Buscar productos por rango de precio
+    productosPorPrecio(min: Float!, max: Float!): [Producto!]!
+}
+
+# Mutations: operaciones de escritura (equivalente a POST/PUT/DELETE en REST)
+type Mutation {
+    # Crear un nuevo producto
+    crearProducto(
+        nombre: String!,
+        descripcion: String,
+        precio: Float!,
+        stock: Int!,
+        categoria: String
+    ): Producto!
+
+    # Actualizar un producto existente
+    actualizarProducto(
+        id: ID!,
+        nombre: String,
+        descripcion: String,
+        precio: Float,
+        stock: Int,
+        categoria: String
+    ): Producto
+
+    # Eliminar un producto por su ID
+    eliminarProducto(id: ID!): Boolean!
+}
