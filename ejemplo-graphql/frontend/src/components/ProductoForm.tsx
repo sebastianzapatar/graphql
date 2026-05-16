@@ -14,7 +14,7 @@
  * - onCreated: callback que se ejecuta al crear exitosamente
  */
 import { useState, type FormEvent } from "react";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { CREAR_PRODUCTO, GET_PRODUCTOS } from "../graphql/operations";
 import type { ProductoInput } from "../types/Producto";
 

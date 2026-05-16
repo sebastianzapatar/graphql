@@ -13,7 +13,7 @@
  * Cada producto tiene botones para editar y eliminar.
  * Al eliminar, se ejecuta una mutation y se actualiza la lista.
  */
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client/react";
 import { GET_PRODUCTOS, ELIMINAR_PRODUCTO } from "../graphql/operations";
 import type { Producto } from "../types/Producto";
 
